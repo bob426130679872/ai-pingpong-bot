@@ -1,0 +1,4 @@
+dxcam
+opencv-python
+numpy
+keyboard

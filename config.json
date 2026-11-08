@@ -1,0 +1,96 @@
+{
+  "blue_hsv": [
+    106,
+    168,
+    248
+  ],
+  "red_hsv": [
+    172,
+    150,
+    240
+  ],
+  "hsv_tol": [
+    4,
+    30,
+    70
+  ],
+  "red_tol": [
+    8,
+    40,
+    70
+  ],
+  "ring_fallback": true,
+  "blue_hsv_alt": [
+    109,
+    160,
+    200
+  ],
+  "hsv_tol_alt": [
+    7,
+    50,
+    105
+  ],
+  "red_tol_alt": [
+    10,
+    60,
+    110
+  ],
+  "match_scale": 1.45,
+  "match_scale_forehand": 1.5,
+  "match_scale_drive": 1.375,
+  "lead_ms": 8,
+  "pull_trigger": 1.05,
+  "swing_mode": "tap",
+  "repull_gap_ms": 250,
+  "auto_pull_ms": 400,
+  "auto_serve": true,
+  "serve_stable_ms": 500,
+  "serve_max_drift": 15,
+  "serve_bg_ratio": 0.9,
+  "serve_y_min": 0.45,
+  "serve_hold_ms": 300,
+  "auto_timing_bar": true,
+  "bar_lead_ms": 30,
+  "bar_window": 0.6,
+  "tap_hold_ms": 30,
+  "backhand_x": 0.3,
+  "forehand_x": 0.7,
+  "swipe_y": 0.55,
+  "middle_side": "forehand",
+  "side_ratio": 0.75,
+  "pull_ratio": 0.15,
+  "pull_ms": 60,
+  "swing_ratio": 0.4,
+  "swing_ms": 40,
+  "cooldown_ms": 400,
+  "rearm_ms": 150,
+  "lost_ms": 300,
+  "lost_swing_margin": 1.15,
+  "ring_r_range": [
+    16,
+    300
+  ],
+  "max_roundness_err": 0.15,
+  "max_fill": 0.6,
+  "min_coverage": 0.75,
+  "predict_window": 0.15,
+  "inner_outlier": 0.15,
+  "min_ratio": 0.95,
+  "ratio_jump": 0.08,
+  "save_off_by": 0.08,
+  "inner_min_contrast": 8,
+  "target_fps": 144,
+  "output_idx": 0,
+  "monitor_origin": [
+    0,
+    0
+  ],
+  "region": [
+    395,
+    672,
+    1525,
+    1140
+  ],
+  "inner_margin": 3.5,
+  "inner_r": null
+}

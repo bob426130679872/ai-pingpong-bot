@@ -38,6 +38,19 @@ python -m pip install -r requirements.txt
 3. **看驗證圖**：綠圈要套在外圈上、紅圈要疊在灰色內圈上 → 按任意鍵關閉
 4. 終端機出現「已儲存」即完成，下次不用再做
 
+## 設定組（不同電腦 / 螢幕 / 遊戲模式）
+
+各平台和模式的校準位置、出手時機存在 `profiles.json`，執行時用 `--profile 名稱` 選：
+
+```powershell
+python bot.py --profile 桌機-急速模式
+python bot.py --profile 桌機-一般AI挑戰 --drive
+```
+
+- 名稱不存在就自動新建（先複製目前設定）；畫面位置不同就加 `--calibrate` 或執行中按 F9，校準結果會存回這個設定組，不動 `config.json`
+- 每個設定組可以放 `config.json` 裡任何設定（例如 `match_scale`、`auto_timing_bar`），沒寫的就用 `config.json` 的值
+- 不加 `--profile` 就跟以前一樣只用 `config.json`
+
 ## 四、熱鍵總表
 
 | 按鍵 | 功能 |

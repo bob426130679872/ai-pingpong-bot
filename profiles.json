@@ -1,0 +1,40 @@
+{
+  "桌機-急速模式": {
+    "region": [
+      395,
+      672,
+      1525,
+      1140
+    ],
+    "output_idx": 0,
+    "monitor_origin": [
+      0,
+      0
+    ],
+    "swing_mode": "tap",
+    "match_scale": 1.45,
+    "match_scale_forehand": 1.5,
+    "match_scale_drive": 1.375,
+    "auto_serve": true,
+    "auto_timing_bar": false
+  },
+  "桌機-一般AI挑戰": {
+    "region": [
+      516,
+      384,
+      1415,
+      1037
+    ],
+    "output_idx": 0,
+    "monitor_origin": [
+      0,
+      0
+    ],
+    "swing_mode": "tap",
+    "match_scale": 1.4,
+    "match_scale_forehand": 1.5,
+    "match_scale_drive": 1.375,
+    "auto_serve": true,
+    "auto_timing_bar": true
+  }
+}

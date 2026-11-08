@@ -155,7 +155,47 @@ def load_config():
 
 
 def save_config(cfg):
+    if cfg.get("_profile"):
+        # 用設定組執行時，校準結果存回那個設定組，不動 config.json
+        profiles = load_profiles()
+        profiles.setdefault(cfg["_profile"], {}).update({k: cfg[k] for k in PROFILE_CAL_KEYS})
+        save_profiles(profiles)
+        print(f"[設定組] 校準結果已存到 {PROFILES_PATH.name} 的「{cfg['_profile']}」")
+        return
     CONFIG_PATH.write_text(json.dumps(cfg, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+# ---------- 設定組：不同電腦/螢幕（平台）和遊戲模式各自的校準與時機 ----------
+
+PROFILES_PATH = Path(__file__).with_name("profiles.json")
+# 校準時會更新的值
+PROFILE_CAL_KEYS = ("region", "output_idx", "monitor_origin")
+# 新建設定組時從目前設定複製的值；其他 config 的鍵也都可以手動加進設定組
+PROFILE_NEW_KEYS = PROFILE_CAL_KEYS + ("swing_mode", "match_scale", "match_scale_forehand",
+                                       "match_scale_drive", "auto_serve", "auto_timing_bar")
+
+
+def load_profiles():
+    if PROFILES_PATH.exists():
+        return json.loads(PROFILES_PATH.read_text(encoding="utf-8"))
+    return {}
+
+
+def save_profiles(profiles):
+    PROFILES_PATH.write_text(json.dumps(profiles, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def apply_profile(cfg, name):
+    """把設定組的值蓋到 cfg 上；設定組不存在就用目前的值新建一個"""
+    profiles = load_profiles()
+    if name in profiles:
+        cfg.update(profiles[name])
+        print(f"[設定組] 使用「{name}」")
+    else:
+        profiles[name] = {k: cfg[k] for k in PROFILE_NEW_KEYS}
+        save_profiles(profiles)
+        print(f"[設定組] 新建「{name}」（先複製目前的設定，畫面位置不同就按 F9 重新校準）")
+    cfg["_profile"] = name
 
 
 # ---------- 顏色遮罩與光圈偵測 ----------
@@ -1022,11 +1062,16 @@ def main():
     ap.add_argument("--calibrate", action="store_true", help="強制重新校準")
     ap.add_argument("--debug", action="store_true", help="顯示識別畫面")
     ap.add_argument("--drive", action="store_true", help="全部正手拉球（只限這次執行，不改設定檔）")
+    ap.add_argument("--profile", help="使用 profiles.json 裡的設定組（平台/模式），沒有就新建")
     args = ap.parse_args()
 
     cfg = load_config()
     if not CONFIG_PATH.exists():
         save_config(cfg)  # 產生預設設定檔讓使用者修改
+    if args.profile:
+        apply_profile(cfg, args.profile)
+    elif PROFILES_PATH.exists():
+        print(f"[設定組] 可用：{'、'.join(load_profiles())}（用 --profile 名稱 選擇）")
     if args.calibrate or not cfg["region"]:
         calibrate(cfg)
     if args.drive:

@@ -92,6 +92,75 @@ DEFAULT_CONFIG = {
     "bar_lead_ms": 30,
     # 白棒預估位置落在橘色區中間這個比例內才點（0.6 = 中間 60%）
     "bar_window": 0.6,
+    # 罐子模式（swing_mode = "can"）：看罐子在對手桌面哪一路，決定這球的打法
+    # 對手半場桌面範圍（遊戲區內的 [左, 上, 右, 下]），校準時框選
+    "can_area": None,
+    # 桌面藍色的 HSV 下限、上限
+    "table_hsv_lo": [98, 180, 120],
+    "table_hsv_hi": [114, 255, 255],
+    # 罐子在桌面範圍內至少要有這麼多像素（排除飛行中的球、桌面白線）
+    "can_min_area": 150,
+    # 罐子在桌面左邊這個比例內算左路、右邊這個比例內算右路，其他算中間
+    "can_lane_split": 0.35,
+    # 打法：tap = 點擊 block；flick（斜線揮拍）、drive（打中間）都是光圈出現就按住往下拖引拍，
+    # 時機到再往上推，只差在出手比值分開調
+    "can_actions": {
+        "forehand": {"straight": "tap", "cross": "flick", "middle": "drive"},
+        "backhand": {"straight": "tap", "cross": "flick", "middle": "drive"},
+    },
+    # 找不到罐子時當作在哪一路：left / middle / right
+    "can_default_lane": "middle",
+    # flick 往上推時同時往旁邊推多少（遊戲區寬度比例）：正手往左上、反手往右上
+    "flick_dx_ratio": 0.25,
+    # flick 引拍時往反方向拖多少（遊戲區寬度比例）：正手往右下、反手往左下
+    "flick_pull_dx_ratio": 0.1,
+    # 罐子、水果模式按住引拍後，光圈大小會突然改變：引拍拖完再等這麼久（毫秒）才開始量光圈
+    "pull_settle_ms": 100,
+    # 引拍中罐子換路時，離出手還有超過這麼久（毫秒）才改打法；太接近出手就來不及重新引拍
+    "can_replan_ms": 100,
+    # flick 的出手比值。太早調小、太晚調大
+    "match_scale_flick": 1.45,
+    # 水果模式（swing_mode = "fruit"）：一般水果和黑色炸彈用不同的拖曳方向
+    # pull = 光圈出現時按住往哪拖引拍、swing = 出手時從引拍位置往哪滑，[x, y] 是遊戲區寬、高的比例（x 正 = 右、y 正 = 下）
+    "gestures": {
+        "fruit": {"pull": [0.1, -0.15], "swing": [-0.25, 0.4]},   # 往右上引拍，往左下揮
+        "bomb": {"pull": [0.1, 0.15], "swing": [-0.25, -0.4]},    # 往右下引拍，往左上揮
+    },
+    # gestures 寫的是正手方向，反手左右相反（水果：往左上引拍、往右下揮；炸彈：往左下引拍、往右上揮）
+    "gesture_mirror_backhand": True,
+    # 罐子、水果模式的出手比值再依正反手加減，例如 {"backhand": 0.05} = 反手早一點
+    "match_side_offset": {},
+    # 各打法的出手比值。太早調小、太晚調大
+    "match_scale_fruit": 1.45,
+    "match_scale_bomb": 1.45,
+    # 炸彈：亮度低於這個值算黑色；大小範圍（像素面積）；周圍至少這個比例是桌面藍色
+    "bomb_v_max": 70,
+    "bomb_area": [30, 6000],
+    "bomb_bg_ratio": 0.6,
+    # 桌面範圍左右各放寬幾 px 找炸彈（貼著桌邊飛的）；紫色地板的 HSV 範圍（炸彈周圍可以是地板）
+    "bomb_side_px": 60,
+    "floor_hsv_lo": [120, 80, 60],
+    "floor_hsv_hi": [145, 255, 255],
+    # 引信火花的顏色（實測約 H15 S251 V243）和像素數範圍：要有火花才算炸彈（排除水果在地板上的影子），
+    # 太多則是整顆橘色/黃色/紅色水果
+    "spark_hsv_lo": [0, 120, 200],
+    "spark_hsv_hi": [35, 255, 255],
+    "bomb_spark_px": [6, 400],
+    # 水果顏色（實測 橘子 H10、檸檬 H26、西瓜 H48，飽和度都 240 以上；蘋果紅色跨 H0/H179）：
+    # 炸彈候選周圍 fruit_check_px 內有一塊至少 fruit_min_px 的水果色就當作水果
+    "fruit_hsv": [[[0, 200, 100], [35, 255, 255]], [[40, 200, 50], [75, 255, 255]], [[170, 200, 100], [179, 255, 255]]],
+    "fruit_check_px": 60,
+    "fruit_min_px": 350,
+    # 往我方飛（畫面上往下）至少這麼多像素才算來球，排除自己打回去的炸彈
+    "bomb_min_dy": 3,
+    # 揮拍後這麼久（毫秒）內看到的炸彈還是剛打的那顆（打到後還會往下飛一兩張），不算下一球
+    "bomb_ignore_after_swing_ms": 350,
+    # 炸彈球量不到內圈時用的預設內圈半徑（像素）；None = 不用預設
+    "bomb_inner_default": 14.5,
+    # 炸彈球只接受這個範圍內的內圈量測（實測 13.2~15px），超出當作量錯
+    "bomb_inner_range": [12.5, 16.5],
+    # 看到來球是炸彈後，這麼久（毫秒）內的出手都用炸彈打法
+    "bomb_memory_ms": 1500,
     # tap 模式按住多久才放開（毫秒）
     "tap_hold_ms": 30,
     # 點擊 / 拖曳起點（遊戲區寬高比例）：反手在左、正手在右
@@ -114,6 +183,8 @@ DEFAULT_CONFIG = {
     "rearm_ms": 150,
     # 引拍後光圈消失超過此時間就放開滑鼠
     "lost_ms": 300,
+    # 引拍後只接受比上一張小（或大不到 15%）的光圈，排除突然出現的大圓（炸彈爆炸光暈等）
+    "ring_shrink_only": False,
     # 引拍中光圈突然消失，若最後比值 ≤ 目標 × 此倍率，就當作快到時機直接補揮
     "lost_swing_margin": 1.15,
     # 外圈半徑合理範圍（像素）。內圈約 20~25px、外圈不會比內圈小，
@@ -129,12 +200,28 @@ DEFAULT_CONFIG = {
     "predict_window": 0.15,
     # 同一球內圈量測和目前中位數差超過此比例視為量錯，丟掉
     "inner_outlier": 0.15,
+    # 內圈取最近幾次量測的中位數。內圈會在引拍後變大小的模式（水果）設小一點，才跟得上
+    "inner_window": 15,
+    # 內圈取最近幾次量測的最小值而不是中位數（內圈會在引拍後縮小的模式用）
+    "inner_use_min": False,
+    # 內圈取「從圓心往外第一個夠亮的圈」而不是最亮的圈（外圈內側有亮光暈的模式用）
+    "inner_pick_first": False,
     # 外圈 / 內圈 低於此值就不是真光圈（誤認其他藍/紅圓形物體）
     "min_ratio": 0.95,
     # 比值只會越縮越小，單張突然變大超過此值視為量測雜訊，不拿來估速度
     "ratio_jump": 0.08,
     # 揮拍比值和目標差超過此值，--debug 時自動存截圖到 debug_shots 資料夾
     "save_off_by": 0.08,
+    # 內圈最多是外圈半徑的多少（None = 不限制）。外圈線條內側有光暈的模式設這個，避免把光暈當成內圈
+    "inner_max_frac": None,
+    # 光圈黏到球拍等東西、輪廓不圓時，改用剔除離群點的圓擬合再判斷一次
+    "ring_robust_fit": False,
+    # 引拍中還沒揮、光圈就變黃色（= 擊球點）時立刻補揮。黃色的 HSV 範圍（實測約 H24 S160 V252）
+    "yellow_fire": False,
+    "yellow_hsv_lo": [18, 100, 180],
+    "yellow_hsv_hi": [32, 255, 255],
+    # 內圈小於這個半徑就當作量錯（雜訊）
+    "inner_min_r": 3,
     # 內圈比周圍亮多少（灰階）才算找到
     "inner_min_contrast": 8,
     "target_fps": 144,
@@ -169,7 +256,7 @@ def save_config(cfg):
 
 PROFILES_PATH = Path(__file__).with_name("profiles.json")
 # 校準時會更新的值
-PROFILE_CAL_KEYS = ("region", "output_idx", "monitor_origin")
+PROFILE_CAL_KEYS = ("region", "output_idx", "monitor_origin", "can_area")
 # 新建設定組時從目前設定複製的值；其他 config 的鍵也都可以手動加進設定組
 PROFILE_NEW_KEYS = PROFILE_CAL_KEYS + ("swing_mode", "match_scale", "match_scale_forehand",
                                        "match_scale_drive", "auto_serve", "auto_timing_bar")
@@ -284,10 +371,18 @@ def find_ring_once(hsv_img, cfg, blue_tol, red_tol, strip_solid):
         if len(c) < 20:
             continue
         (cx, cy), r = cv2.minEnclosingCircle(c)
-        if not (r_min <= r <= r_max):
-            continue
         pts = c.reshape(-1, 2).astype(np.float32)
         dist = np.hypot(pts[:, 0] - cx, pts[:, 1] - cy)
+        if cfg["ring_robust_fit"] and (dist.std() / r > cfg["max_roundness_err"]
+                                       or ring_coverage(blue, red, (cx, cy), r)[0] < cfg["min_coverage"]):
+            # 光圈黏到球拍：外接圓被球拍撐大、圓心偏掉。改用輪廓點擬合圓，剔除離圓太遠的點（球拍那段）
+            fit = robust_circle(pts)
+            if fit is not None:
+                cx, cy, r = fit
+                dist = np.hypot(pts[:, 0] - cx, pts[:, 1] - cy)
+                dist = dist[np.abs(dist - r) <= 3]
+        if not (r_min <= r <= r_max):
+            continue
         if dist.std() / r > cfg["max_roundness_err"]:
             continue
         x0, y0 = max(int(cx - r), 0), max(int(cy - r), 0)
@@ -308,6 +403,37 @@ def find_ring_once(hsv_img, cfg, blue_tol, red_tol, strip_solid):
     (cx, cy), r, n_blue, n_red = best
     return {"center": (cx, cy), "r": r, "side": side_from_counts(n_blue, n_red, cfg),
             "n_blue": n_blue, "n_red": n_red}, mask
+
+
+def yellow_ring_near(hsv_img, center, r_hi, cfg):
+    """光圈縮到碰到內圈時會整圈變黃（= 擊球點）。在上一個光圈的位置找黃色圓圈，回傳線條完整度最高的比例"""
+    h, w = hsv_img.shape[:2]
+    cx, cy = center
+    x0, y0 = max(int(cx - r_hi - 3), 0), max(int(cy - r_hi - 3), 0)
+    x1, y1 = min(int(cx + r_hi + 4), w), min(int(cy + r_hi + 4), h)
+    if x1 <= x0 or y1 <= y0:
+        return 0.0
+    yellow = cv2.inRange(hsv_img[y0:y1, x0:x1], tuple(cfg["yellow_hsv_lo"]), tuple(cfg["yellow_hsv_hi"]))
+    best = 0.0
+    for r in np.arange(6, r_hi + 0.01, 1.0):
+        xs = np.clip(np.round(cx - x0 + r * np.cos(RING_ANGLES)).astype(int), 0, x1 - x0 - 1)
+        ys = np.clip(np.round(cy - y0 + r * np.sin(RING_ANGLES)).astype(int), 0, y1 - y0 - 1)
+        best = max(best, float((yellow[ys, xs] > 0).mean()))
+    return best
+
+
+def robust_circle(pts):
+    """輪廓點擬合圓，逐步剔除離圓太遠的點。圓上的點要佔一半以上才算，回傳 (cx, cy, r) 或 None"""
+    xs, ys = pts[:, 0].astype(np.float64), pts[:, 1].astype(np.float64)
+    keep = np.ones(len(xs), bool)
+    for tol in (None, 0.2, 0.08):
+        cx, cy, r = fit_circle(xs[keep], ys[keep])
+        if tol is not None and r > 0:
+            keep = np.abs(np.hypot(xs - cx, ys - cy) - r) <= max(tol * r, 2)
+            if keep.sum() < max(20, 0.5 * len(xs)):
+                return None
+    cx, cy, r = fit_circle(xs[keep], ys[keep])
+    return cx, cy, r
 
 
 def warm_fill(hsv_img, center, r):
@@ -402,10 +528,139 @@ def resolve_side(side, cfg):
     return cfg["middle_side"] if side == "middle" else side
 
 
-def match_for(side, cfg):
+def match_for(side, cfg, action=None):
     if cfg["swing_mode"] == "drive":
         return cfg["match_scale_drive"]
+    if action and f"match_scale_{action}" in cfg:
+        # 罐子、水果模式各打法分開調；再依正反手加減（比值越大越早出手）
+        return cfg[f"match_scale_{action}"] + cfg["match_side_offset"].get(resolve_side(side, cfg), 0)
     return cfg["match_scale_forehand"] if resolve_side(side, cfg) == "forehand" else cfg["match_scale"]
+
+
+def table_hull(hsv_img, cfg):
+    """回傳 (桌面藍色遮罩, 桌面外框填滿的遮罩) 或 None。中線、網子、罐子會把桌面切成好幾塊，大塊的都算桌面"""
+    table = cv2.inRange(hsv_img, tuple(cfg["table_hsv_lo"]), tuple(cfg["table_hsv_hi"]))
+    n, labels, st, _ = cv2.connectedComponentsWithStats(table)
+    if n < 2:
+        return None
+    areas = st[1:, cv2.CC_STAT_AREA]
+    big = np.isin(labels, 1 + np.flatnonzero(areas >= 0.1 * areas.max()))
+    hull = np.zeros_like(table)
+    cv2.fillConvexPoly(hull, cv2.convexHull(cv2.findNonZero(big.astype(np.uint8))), 255)
+    return table, hull
+
+
+BOMB_ANGLES = np.linspace(0, 2 * np.pi, 36, endpoint=False)
+_bomb_cache = {"t": 0.0, "hull": None, "box": None}
+
+
+def find_bomb(hsv_img, cfg):
+    """
+    水果模式：找飛在桌面上方的黑色炸彈。桌面範圍（左右各放寬 bomb_side_px，貼著桌邊飛的也找得到）內、
+    很暗、圓、周圍大多是桌面藍色或紫色地板、而且旁邊有引信的橘黃色火花。
+    水果落在地板上的影子、網柱的黑色小腳都沒有火花；球員的黑頭髮連著衣服、形狀不圓；都會被排除。回傳 (x, y) 或 None
+    """
+    # 桌子不會動，桌面外框每秒重找一次就好（每張都找要 8ms，處理速度會掉一半）
+    now = time.perf_counter()
+    if now - _bomb_cache["t"] > 1.0 or _bomb_cache["hull"] is None:
+        found = table_hull(hsv_img, cfg)
+        if found is None:
+            return None
+        side = cfg["bomb_side_px"]
+        hull = cv2.dilate(found[1], np.ones((1, 2 * side + 1), np.uint8))
+        x, y, w, h = cv2.boundingRect(hull)
+        _bomb_cache.update(t=now, hull=hull[y:y + h, x:x + w], box=(x, y, w, h))
+    bx, by, bw, bh = _bomb_cache["box"]
+    hull = _bomb_cache["hull"]
+    sub = hsv_img[by:by + bh, bx:bx + bw]
+    if sub.shape[:2] != hull.shape:
+        _bomb_cache["hull"] = None   # 畫面大小變了（重新校準），下一張重找
+        return None
+    table = cv2.inRange(sub, tuple(cfg["table_hsv_lo"]), tuple(cfg["table_hsv_hi"]))
+    # 周圍可以是桌面或紫色地板（貼著桌邊飛的炸彈一半在桌外）
+    table |= cv2.inRange(sub, tuple(cfg["floor_hsv_lo"]), tuple(cfg["floor_hsv_hi"]))
+    spark = cv2.inRange(sub, tuple(cfg["spark_hsv_lo"]), tuple(cfg["spark_hsv_hi"]))
+    dark = cv2.inRange(sub, (0, 0, 0), (179, 255, cfg["bomb_v_max"])) & hull
+    dark = cv2.morphologyEx(dark, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+    n, _, st, cen = cv2.connectedComponentsWithStats(dark)
+    h_img, w_img = table.shape
+    a_min, a_max = cfg["bomb_area"]
+    for i in range(1, n):
+        x, y, w, h, area = st[i]
+        if not (a_min <= area <= a_max) or not (0.6 <= w / h <= 1.6) or area / (w * h) < 0.5:
+            continue
+        cx, cy = cen[i]
+        r = (w + h) / 4
+        bg = []
+        for d in (r + 3, r + 6):
+            xs = np.clip(np.round(cx + d * np.cos(BOMB_ANGLES)).astype(int), 0, w_img - 1)
+            ys = np.clip(np.round(cy + d * np.sin(BOMB_ANGLES)).astype(int), 0, h_img - 1)
+            bg.append(table[ys, xs] > 0)
+        if np.mean(bg) < cfg["bomb_bg_ratio"]:
+            continue
+        # 引信的火花在炸彈旁邊約 2 倍半徑內，很小；整顆橘子、檸檬、蘋果太大，不算火花
+        R = int(2.2 * r)
+        n_spark = cv2.countNonZero(spark[max(int(cy) - R, 0):int(cy) + R, max(int(cx) - R, 0):int(cx) + R])
+        if not (cfg["bomb_spark_px"][0] <= n_spark <= cfg["bomb_spark_px"][1]):
+            continue
+        if fruit_nearby(hsv_img, cx + bx, cy + by, cfg):
+            continue   # 旁邊有一大塊水果色（橘子、檸檬、蘋果、西瓜）= 是水果，不是炸彈
+        return float(cx + bx), float(cy + by)
+    return None
+
+
+def fruit_nearby(hsv_img, x, y, cfg):
+    """(x, y) 附近有沒有一大塊高飽和的水果色。火花顏色和橘子一樣但很小；球拍的綠色那面飽和度低，不算"""
+    R = cfg["fruit_check_px"]
+    sub = hsv_img[max(int(y) - R, 0):int(y) + R, max(int(x) - R, 0):int(x) + R]
+    if sub.size == 0:
+        return False
+    m = None
+    for lo, hi in cfg["fruit_hsv"]:
+        part = cv2.inRange(sub, tuple(lo), tuple(hi))
+        m = part if m is None else m | part
+    _, _, st, _ = cv2.connectedComponentsWithStats(m)
+    return bool((st[1:, cv2.CC_STAT_AREA] >= cfg["fruit_min_px"]).any())
+
+
+def direction(dx, dy):
+    """拖曳方向的文字，例如 往右上"""
+    return "往" + ("右" if dx > 0 else "左" if dx < 0 else "") + ("下" if dy > 0 else "上" if dy < 0 else "")
+
+
+def find_can(hsv_img, cfg):
+    """
+    罐子模式：在 can_area 裡找罐子。藍色桌面圍起來的範圍內、不是桌面藍色的那一塊就是罐子
+    （白線很細，開運算會去掉）。回傳 (x, y, 路線 left/middle/right) 或 None，座標是整個遊戲區的。
+    """
+    x0, y0, x1, y1 = cfg["can_area"]
+    found = table_hull(hsv_img[y0:y1, x0:x1], cfg)
+    if found is None:
+        return None
+    table, hull = found
+    cand = cv2.morphologyEx(hull & ~table, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
+    n, _, st, cen = cv2.connectedComponentsWithStats(cand)
+    if n < 2:
+        return None
+    i = 1 + int(np.argmax(st[1:, cv2.CC_STAT_AREA]))
+    if st[i, cv2.CC_STAT_AREA] < cfg["can_min_area"]:
+        return None
+    cx, cy = cen[i]
+    row = np.flatnonzero(hull[int(cy)])
+    frac = (cx - row[0]) / max(row[-1] - row[0], 1)
+    split = cfg["can_lane_split"]
+    lane = "left" if frac < split else "right" if frac > 1 - split else "middle"
+    return float(cx + x0), float(cy + y0), lane
+
+
+def can_action(side, lane, cfg):
+    """依正反手和罐子路線決定打法：正手打右路、反手打左路是直線，反過來是斜線"""
+    side = resolve_side(side, cfg)
+    if lane == "middle":
+        kind = "middle"
+    else:
+        kind = "straight" if (lane == "right") == (side == "forehand") else "cross"
+    return cfg["can_actions"][side][kind]
 
 
 DILATE_KERNEL = np.ones((3, 3), np.uint8)
@@ -441,11 +696,19 @@ def measure_inner(gray, color_mask, ring, cfg):
 
     k = 4                                   # 和前後各 2px 比較亮度
     lo = max(int(3 / px_per_bin), k)        # 半徑 3px 以內是圓心雜訊，略過
-    if bins - k - lo < 4:
+    hi = bins - k
+    if cfg.get("inner_max_frac"):
+        # 只在外圈半徑的這個比例內找：外圈線條內側的光暈很貼近外圈，不會被當成內圈
+        hi = min(hi, int(max_r * cfg["inner_max_frac"] / px_per_bin))
+    if hi - lo < 4:
         return None
-    contrast = polar[:, lo:bins - k] - (polar[:, lo - k:bins - 2 * k] + polar[:, lo + k:bins]) / 2
+    contrast = polar[:, lo:hi] - (polar[:, lo - k:hi - k] + polar[:, lo + k:hi + k]) / 2
     contrast = np.nan_to_num(contrast, nan=-1e9)
     idx = np.argmax(contrast, axis=1)
+    if cfg["inner_pick_first"]:
+        # 從圓心往外第一個夠亮的圈：外圈線條內側的光暈比灰色內圈亮，取最亮的會抓到光暈
+        strong = contrast >= np.maximum(cfg["inner_min_contrast"], 0.4 * contrast[np.arange(rows), idx])[:, None]
+        idx = np.argmax(strong, axis=1)
     ok = contrast[np.arange(rows), idx] >= cfg["inner_min_contrast"]
     if ok.sum() < rows * 0.3:
         return None
@@ -464,7 +727,7 @@ def measure_inner(gray, color_mask, ring, cfg):
     if keep.sum() < rows * 0.25:
         return None
     _, _, fr = fit_circle(xs[keep], ys[keep])
-    return fr if 3 < fr < max_r else None
+    return fr if cfg["inner_min_r"] < fr < max_r else None
 
 
 def robust_line(history, now):
@@ -514,6 +777,9 @@ class Mouse:
         self.w, self.h = right - left, bottom - top
         self.cfg = cfg
         self.down = False
+        self.action = None  # 罐子模式這球的打法
+        self.side = "forehand"
+        self.release_t = 0.0  # 上次放開滑鼠的時間
         self.x = self.y = 0
         self.jobs = queue.Queue()
         threading.Thread(target=self._worker, daemon=True).start()
@@ -528,6 +794,9 @@ class Mouse:
 
     def pull(self, side):
         self.jobs.put(lambda: self._pull(side))
+
+    def prepare(self, side, action):
+        self.jobs.put(lambda: self._prepare(side, action))
 
     def swing(self):
         self.jobs.put(self._swing)
@@ -570,10 +839,11 @@ class Mouse:
             move_cursor(self.ox + self.x, self.oy + self.y)
             time.sleep(ms / 1000 / steps)
 
-    def _pull(self, side, press=None):
+    def _pull(self, side, press=None, dx=0.0, dy=None):
         """依正反手決定起點，按下並往下拖曳引拍，之後保持按住（tap 模式只移游標，不按；發球時強制按）"""
         cfg = self.cfg
-        side = resolve_side(side, cfg)
+        self.action = None
+        side = self.side = resolve_side(side, cfg)
         self.x = self.w * cfg["backhand_x" if side == "backhand" else "forehand_x"]
         self.y = self.h * cfg["swipe_y"]
         move_cursor(self.ox + self.x, self.oy + self.y)
@@ -581,20 +851,53 @@ class Mouse:
             return
         user32.mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
         self.down = True
-        self._drag(self.x, self.y + self.h * cfg["pull_ratio"], cfg["pull_ms"])
-        print(f"\n[滑鼠] 按下並往下拖（引拍），游標在 ({int(self.ox + self.x)}, {int(self.oy + self.y)})")
+        if dy is None:
+            dy = self.h * cfg["pull_ratio"]
+        self._drag(self.x + dx, self.y + dy, cfg["pull_ms"])
+        print(f"\n[滑鼠] 按下並{direction(dx, dy)}拖（引拍），游標在 ({int(self.ox + self.x)}, {int(self.oy + self.y)})")
+
+    def gesture_sx(self, side):
+        """gestures 是正手的方向；反手左右相反（gesture_mirror_backhand）"""
+        mirror = self.cfg["gesture_mirror_backhand"] and resolve_side(side, self.cfg) == "backhand"
+        return -1 if mirror else 1
+
+    def _prepare(self, side, action):
+        """罐子模式：依這球的打法就位。drive、flick 按住往下拖引拍（flick 斜著拖：正手右下、反手左下）；tap 只移游標"""
+        self._release()
+        # 上一拍的揮拍動畫還沒做完就按下，遊戲會忽略，這球的引拍和揮拍都不算
+        wait = self.pull_ready_at() - time.perf_counter()
+        if wait > 0:
+            time.sleep(wait)
+        g = self.cfg["gestures"].get(action)
+        if g:
+            # 水果模式：照 gestures 設定的方向引拍（反手左右相反）
+            sx = self.gesture_sx(side)
+            self._pull(side, press=True, dx=sx * self.w * g["pull"][0], dy=self.h * g["pull"][1])
+        else:
+            dx = 0.0
+            if action == "flick":
+                dx = self.w * self.cfg["flick_pull_dx_ratio"] * (1 if resolve_side(side, self.cfg) == "forehand" else -1)
+            self._pull(side, press=action in ("drive", "flick"), dx=dx)
+        self.action = action
 
     def _swing(self):
-        """從引拍位置往上滑並放開（tap 模式則在左/右側點一下）"""
-        if self.cfg["swing_mode"] == "tap":
+        """從引拍位置往上滑並放開（tap 則在左/右側點一下；flick 斜著推：正手往左上、反手往右上）"""
+        if (self.action or self.cfg["swing_mode"]) == "tap":
             move_cursor(self.ox + self.x, self.oy + self.y)
             user32.mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
             time.sleep(self.cfg["tap_hold_ms"] / 1000)
             user32.mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
             return
-        self._drag(self.x, self.y - self.h * self.cfg["swing_ratio"], self.cfg["swing_ms"])
+        dx, dy = 0.0, -self.h * self.cfg["swing_ratio"]
+        g = self.cfg["gestures"].get(self.action) if self.action else None
+        if g:
+            dx, dy = self.gesture_sx(self.side) * self.w * g["swing"][0], self.h * g["swing"][1]
+        elif self.action == "flick":
+            dx = self.w * self.cfg["flick_dx_ratio"] * (-1 if self.side == "forehand" else 1)
+        self._drag(self.x + dx, self.y + dy, self.cfg["swing_ms"])
         self._release()
-        print("\n[滑鼠] 往上推並放開（揮拍）")
+        self.release_t = time.perf_counter()
+        print(f"\n[滑鼠] {direction(dx, dy)}滑並放開（揮拍）")
         if self.cfg["swing_mode"] == "drive":
             # 等揮拍動畫做完再按下引拍，太早按會被遊戲忽略
             time.sleep(self.cfg["repull_gap_ms"] / 1000)
@@ -608,6 +911,7 @@ class Mouse:
             time.sleep(cfg["serve_hold_ms"] / 1000)
         self._drag(self.x, self.y - self.h * cfg["swing_ratio"], cfg["swing_ms"])
         self._release()
+        self.release_t = time.perf_counter()
         print("\n[滑鼠] 發球：往上推並放開")
         if cfg["swing_mode"] == "drive":
             time.sleep(cfg["repull_gap_ms"] / 1000)
@@ -617,6 +921,10 @@ class Mouse:
         if self.down:
             user32.mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
             self.down = False
+
+    def pull_ready_at(self):
+        """最早什麼時候可以再按下引拍（上次揮完放開 + repull_gap_ms）。只是取消引拍、沒有揮拍動畫就不用等"""
+        return self.release_t + self.cfg["repull_gap_ms"] / 1000
 
 
 # ---------- 校準 ----------
@@ -690,6 +998,21 @@ def calibrate(cfg):
     cfg["region"] = [int(x), int(y), int(x + w), int(y + h)]
     crop = full[y:y + h, x:x + w]
 
+    if cfg["swing_mode"] == "can":
+        win = "Drag to select OPPONENT HALF of the table (above the net, where the can is), then ENTER"
+        cv2.namedWindow(win, cv2.WINDOW_NORMAL)
+        cv2.setWindowProperty(win, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        cx, cy, cw, ch = cv2.selectROI(win, crop, showCrosshair=False)
+        cv2.destroyWindow(win)
+        if cw == 0 or ch == 0:
+            raise SystemExit("沒有框選對手桌面")
+        cfg["can_area"] = [int(cx), int(cy), int(cx + cw), int(cy + ch)]
+        found = find_can(cv2.cvtColor(crop, cv2.COLOR_BGR2HSV), cfg)
+        if found is None:
+            print("[校準] ⚠ 對手桌面上找不到罐子，可能要調 table_hsv_lo / table_hsv_hi 或 can_min_area")
+        else:
+            print(f"[校準] 罐子在 ({found[0]:.0f}, {found[1]:.0f})，判斷為 {found[2]}")
+
     # 用擷取的畫面驗證一次：綠圈 = 外圈，紅圈 = 偵測到的內圈
     ring, mask = find_ring(cv2.cvtColor(crop, cv2.COLOR_BGR2HSV), cfg)
     vis = crop.copy()
@@ -709,14 +1032,19 @@ def calibrate(cfg):
         else:
             cv2.circle(vis, c, int(round(inner)), (0, 0, 255), 1)
             print(f"[校準] 外圈 {ring['r']:.1f}px（{ring['side']}），內圈 {inner:.1f}px，比值 {ring['r'] / inner:.2f}")
-    vis = cv2.resize(vis, None, fx=2, fy=2, interpolation=cv2.INTER_NEAREST)
-    cv2.imshow("check: green=outer red=inner (any key)", vis)
-    cv2.imshow("check mask (any key)", mask)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
+    # 先存檔：驗證視窗被按 X 關掉時 waitKey 不會返回，放在後面會存不到
     save_config(cfg)
-    print(f"[校準] 已儲存到 {CONFIG_PATH}")
+    if not cfg.get("_profile"):
+        print(f"[校準] 已儲存到 {CONFIG_PATH}")
+
+    vis = cv2.resize(vis, None, fx=2, fy=2, interpolation=cv2.INTER_NEAREST)
+    win = "check: green=outer red=inner (any key)"
+    cv2.imshow(win, vis)
+    cv2.imshow("check mask (any key)", mask)
+    # 按任意鍵，或把驗證視窗按 X 關掉，都繼續
+    while cv2.waitKey(100) == -1 and cv2.getWindowProperty(win, cv2.WND_PROP_VISIBLE) >= 1:
+        pass
+    cv2.destroyAllWindows()
 
 
 # ---------- 主迴圈 ----------
@@ -738,11 +1066,32 @@ def run(cfg, debug):
     keyboard.add_hotkey("f9", lambda: state.update(recal=True))
     keyboard.add_hotkey("f10", lambda: state.update(quit=True))
     mode_name = {"tap": "點擊 block（正反手自動）", "swipe": "拖曳揮拍（正反手自動）",
-                 "drive": "全部正手拉球"}.get(cfg["swing_mode"], cfg["swing_mode"])
+                 "drive": "全部正手拉球", "can": "打罐子（依罐子位置選打法）",
+                 "fruit": "打水果（炸彈用另一種打法）"}.get(cfg["swing_mode"], cfg["swing_mode"])
     print(f"模式：{mode_name}")
     print("就緒：F7 測試揮拍，F8 開始/暫停，F9 重新校準，F10 結束")
 
     drive = cfg["swing_mode"] == "drive"
+    can_mode = cfg["swing_mode"] == "can"
+    can_lane = cfg["can_default_lane"]  # 罐子模式：罐子目前在哪一路
+    can_pos = None          # 最近一次找到的罐子位置
+    fruit_mode = cfg["swing_mode"] == "fruit"
+    bomb_inner_cfg = dict(cfg, inner_pick_first=True)
+    planned = can_mode or fruit_mode    # 每球依畫面選打法的模式
+    bomb_track = deque(maxlen=6)  # 水果模式：最近看到炸彈的 (時間, x, y)
+    bomb_seen = -10.0       # 最後一次確認有炸彈往我方飛來的時間
+    last_fire = -10.0       # 最後一次揮拍的時間（之前看到的炸彈屬於上一球）
+    prev_phase = "idle"     # 上一張的階段，用來抓「剛揮完」的那一刻
+    held_action = None      # 罐子、水果模式這球的打法
+    held_r = None           # 本球最近一次的外圈半徑（ring_shrink_only 用）
+    shot_rs = []            # 本球每張的外圈半徑，取消時印出來看光圈怎麼縮
+    held_center = None      # 本球最近一次的光圈圓心（找黃色光圈用）
+    settle_until = 0.0      # 按住引拍後光圈大小會突然改變，這個時間之前不量光圈、不出手
+
+    def pulls(action):
+        """這種打法光圈出現時要先按住引拍（tap 不用）"""
+        return action in ("drive", "flick") or action in cfg["gestures"]
+
     drive_ready = False     # drive 模式：滑鼠已按住引拍中
     btn_up_since = None     # drive 模式：左鍵從什麼時候開始是放開的
     serve_pos = None        # 發球圖示第一次出現的位置
@@ -760,7 +1109,7 @@ def run(cfg, debug):
     last_seen = 0.0
     seen_streak = miss_streak = 0
     # 本球量到的內圈半徑（每球不同、同一球內固定），取中位數去雜訊；光圈消失就清空換下一球
-    inners = deque(maxlen=15)
+    inners = deque(maxlen=cfg["inner_window"])
     rejected = deque(maxlen=3)  # 本球最近連續被當作量錯剔除的內圈值
     prev_inner = None           # 最近一次的內圈，本球還沒量到時暫用（快球可能來不及量）
     history = deque(maxlen=8)   # (時間, 外圈/內圈 比值)
@@ -803,13 +1152,23 @@ def run(cfg, debug):
             frame_dt_ms = float(np.median(frame_dts)) * 1000 if frame_dts else 16.7
 
             hsv =cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-            ring, mask = find_ring(hsv, cfg)
+            ring_cfg = cfg
+            if cfg["ring_shrink_only"] and phase == "held" and held_r:
+                # 同一球的光圈只會縮小：比上一張大很多的圓（炸彈爆炸的光暈等）不算
+                ring_cfg = dict(cfg, ring_r_range=[cfg["ring_r_range"][0], held_r * 1.15])
+            ring, mask = find_ring(hsv, ring_cfg)
             inner = ratio = ttm_ms = slope = ratio_now = None
             measured = None
             inner_src = "-"
 
             if ring is not None:
-                measured = measure_inner(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), mask, ring, cfg)
+                # 炸彈球引拍後內圈變小，外圈內側的亮光暈會被當成內圈：改取從圓心往外第一個亮圈
+                inner_cfg = bomb_inner_cfg if fruit_mode and held_action == "bomb" else cfg
+                measured = measure_inner(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), mask, ring, inner_cfg)
+                if (inner_cfg is bomb_inner_cfg and measured is not None
+                        and not (cfg["bomb_inner_range"][0] <= measured <= cfg["bomb_inner_range"][1])):
+                    # 炸彈引拍後內圈固定約 13~15px；光圈中間是黑炸彈時常把反光量成 9~11px，取最小值會讓出手太晚
+                    measured = None
                 if measured is not None and len(inners) >= 3:
                     med = float(np.median(inners))
                     if abs(measured - med) / med > cfg["inner_outlier"]:
@@ -829,7 +1188,12 @@ def run(cfg, debug):
                         rejected.clear()
                 cand = list(inners) + ([measured] if measured is not None else [])
                 if cand:
-                    inner, inner_src = float(np.median(cand)), "實測"
+                    # 內圈會在引拍後慢慢縮小的模式取最小值：中位數會落後一兩張，用舊的大內圈算會太早揮
+                    inner = float(min(cand) if cfg["inner_use_min"] else np.median(cand))
+                    inner_src = "實測"
+                elif fruit_mode and held_action == "bomb" and phase == "held" and cfg["bomb_inner_default"]:
+                    # 炸彈引拍後的內圈很固定（實測 13~15px），落在頭上量不到時用預設值照常出手，不然只能等到變黃才補揮
+                    inner, inner_src = float(cfg["bomb_inner_default"]), "炸彈預設"
                 elif prev_inner is not None:
                     # 只顯示參考用；暫用值不拿來出手（每球內圈不同，上一球的值會讓時機大亂）
                     inner_src = f"未量到(上球{prev_inner:.0f})"
@@ -842,7 +1206,10 @@ def run(cfg, debug):
                 last_seen = now
                 seen_streak += 1
                 miss_streak = 0
-                if measured is not None:
+                if now < settle_until:
+                    # 剛按住引拍：引拍方式會讓光圈大小突然改變，等引拍完成才開始量
+                    inner, inner_src = None, "等引拍"
+                if measured is not None and inner is not None:
                     inners.append(measured)
                     prev_inner = inner
                 if inner is not None:
@@ -853,6 +1220,8 @@ def run(cfg, debug):
             else:
                 seen_streak = 0
                 miss_streak += 1
+                if phase == "held" and miss_streak == 1 and fruit_mode:
+                    save_shot("光圈消失原圖", frame.copy())   # 不加標記的原圖，查為什麼抓不到
                 # 光圈疊到球員身上時常有一兩張偵測失敗；真的消失一段時間才當作換下一球，
                 # 否則量好的內圈和縮小速度被清掉，要重新量，快球就來不及出手。
                 # 引拍中不清：光圈被頭擋住時要靠之前的縮小速度推算出手時機
@@ -883,12 +1252,59 @@ def run(cfg, debug):
                 t = ttm_for(m)
                 return t is not None and t <= lead_ms + frame_dt_ms / 2
 
-            match = match_for(held_side if phase == "held" else (ring["side"] if ring else "backhand"), cfg)
+            def plan(side):
+                if fruit_mode:
+                    # 只認上次揮拍之後看到的炸彈（上一球的不算）
+                    recent = bomb_seen > last_fire and now - bomb_seen < cfg["bomb_memory_ms"] / 1000
+                    return "bomb" if recent else "fruit"
+                return can_action(side, can_lane, cfg) if can_mode else None
+
+            # 水果模式：炸彈往我方飛（畫面上往下）才算來球，自己打回去的往上飛不算。
+            # 揮完的冷卻期間也要看：對手回球快時，炸彈過網那段剛好在冷卻中，等冷卻完才看到就太近了
+            bomb = find_bomb(hsv, cfg) if fruit_mode else None
+            if bomb is not None:
+                while bomb_track and now - bomb_track[0][0] > 0.3:
+                    bomb_track.popleft()
+                bomb_track.append((now, *bomb))
+                # 剛揮完的一小段時間不算：被我們打到的炸彈還會往下飛一兩張才反彈，會被誤當成下一球
+                if (len(bomb_track) >= 2 and bomb_track[-1][2] - bomb_track[0][2] >= cfg["bomb_min_dy"]
+                        and now - last_fire > cfg["bomb_ignore_after_swing_ms"] / 1000):
+                    if bomb_seen <= last_fire:   # 這球第一次看到才印
+                        print(f"\n[炸彈] 來球是炸彈 ({bomb[0]:.0f}, {bomb[1]:.0f})"
+                              + ("（冷卻中看到）" if phase == "cooldown" else ""))
+                    bomb_seen = now
+
+            # 罐子會移動，等球和引拍中都持續找，出手前換路就改打法
+            if can_mode and phase in ("idle", "held"):
+                found = find_can(hsv, cfg)
+                if found is not None:
+                    can_pos = found[:2]
+                    if found[2] != can_lane:
+                        can_lane = found[2]
+                        lane_name = {"left": "左路", "middle": "中間", "right": "右路"}[can_lane]
+                        print(f"\n[罐子] 在{lane_name} ({can_pos[0]:.0f}, {can_pos[1]:.0f})")
+
+            if phase == "held":
+                match = match_for(held_side, cfg, held_action)
+            else:
+                side_now = ring["side"] if ring else "backhand"
+                match = match_for(side_now, cfg, plan(side_now))
             ttm_ms = ttm_for(match)
 
             vis = None
             if debug:
                 vis = frame.copy()
+                if bomb is not None:
+                    cv2.circle(vis, tuple(map(int, bomb)), 12, (0, 0, 255), 2)
+                    cv2.putText(vis, "bomb", (int(bomb[0]) + 14, int(bomb[1])),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+                if can_mode:
+                    x0, y0, x1, y1 = cfg["can_area"]
+                    cv2.rectangle(vis, (x0, y0), (x1, y1), (255, 255, 0), 1)
+                    if can_pos is not None:
+                        cv2.circle(vis, tuple(map(int, can_pos)), 8, (0, 255, 255), 2)
+                        cv2.putText(vis, can_lane, (int(can_pos[0]) + 10, int(can_pos[1])),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 1)
                 if ring is not None:
                     c = tuple(map(int, ring["center"]))
                     cv2.circle(vis, c, int(ring["r"]), (0, 255, 0), 2)
@@ -904,10 +1320,14 @@ def run(cfg, debug):
 
             def log_swing(tag):
                 ttm_txt = "-" if ttm_ms is None else f"{ttm_ms:.0f}ms"
-                print(f"\n[{tag}] {held_side}  外圈 {ring['r']:.1f}px / 內圈 {inner:.1f}px（{inner_src}）"
+                act_txt = f" {held_action}（罐子{can_lane}）" if can_mode else f" {held_action}" if fruit_mode else ""
+                print(f"\n[{tag}] {held_side}{act_txt}  外圈 {ring['r']:.1f}px / 內圈 {inner:.1f}px（{inner_src}）"
                       f" = {ratio:.2f}（目標 {match}），預估差 {ttm_txt}，藍 {side_counts[0]} / 紅 {side_counts[1]}")
                 if tag != "揮拍" or abs(ratio - match) > cfg["save_off_by"]:
                     save_shot(tag, vis)
+                if fruit_mode:
+                    # 標記會蓋住光圈細節，每次揮拍都另存原圖查內圈
+                    save_shot("炸彈原圖" if held_action == "bomb" else "水果原圖", frame.copy())
 
             # 計時條小遊戲：預估白棒進到橘色區中間就點擊
             bar = find_timing_bar(hsv) if cfg["auto_timing_bar"] and state["active"] and ring is None else None
@@ -967,10 +1387,16 @@ def run(cfg, debug):
                 # 有量到內圈 = 確定是真光圈，第一張就行動（快球只有幾張畫面）；否則要連續 2 張
                 if ring is not None and (measured is not None or seen_streak >= 2):
                     held_side = resolve_side(ring["side"], cfg)
+                    held_r = ring["r"]
+                    held_center = ring["center"]
+                    shot_rs = [ring["r"]]
                     side_counts = [ring["n_blue"], ring["n_red"]]
-                    match = match_for(held_side, cfg)
+                    held_action = plan(held_side)
+                    match = match_for(held_side, cfg, held_action)
                     ttm_ms = ttm_for(match)
-                    if not drive:
+                    if planned:
+                        mouse.prepare(held_side, held_action)
+                    elif not drive:
                         mouse.pull(held_side)
                     elif not mouse.busy() and not left_button_down():
                         # 按 F8 時不先按住（使用者還要點遊戲的開始），光圈出現才按下引拍；
@@ -979,7 +1405,10 @@ def run(cfg, debug):
                         drive_ready = True
                     shot_frames, shot_inner_hits = 1, int(measured is not None)
                     last_ratio = ratio  # 不沿用上一球的最後比值，避免誤觸補揮
-                    if should_fire(match):
+                    if planned and pulls(held_action):
+                        settle_until = max(now, mouse.pull_ready_at()) + (cfg["pull_ms"] + cfg["pull_settle_ms"]) / 1000
+                        inners.clear(); rejected.clear(); history.clear(); last_ratio = None
+                    if now >= settle_until and should_fire(match):
                         # 光圈被偵測到時已到出手時機（快球常見）：立刻出手
                         mouse.swing()
                         log_swing("急揮")
@@ -989,20 +1418,55 @@ def run(cfg, debug):
             elif phase == "held":
                 if ring is not None:
                     shot_frames += 1
+                    held_r = ring["r"]
+                    held_center = ring["center"]
+                    shot_rs.append(ring["r"])
                     shot_inner_hits += measured is not None
                     side_counts[0] += ring["n_blue"]
                     side_counts[1] += ring["n_red"]
                     new_side = resolve_side(side_from_counts(*side_counts, cfg), cfg)
                     # tap 只是把游標移到另一邊，可以改；swipe 已經按住拖曳就不改
-                    if new_side != held_side and cfg["swing_mode"] == "tap":
+                    # 罐子模式換手就重新就位（drive 已按住會先放開再引拍）
+                    if new_side != held_side and (cfg["swing_mode"] == "tap" or planned):
                         print(f"\n[改手] {held_side} → {new_side}（累計 藍 {side_counts[0]} / 紅 {side_counts[1]}）")
                         held_side = new_side
-                        match = match_for(held_side, cfg)
+                        held_action = plan(held_side)
+                        match = match_for(held_side, cfg, held_action)
                         ttm_ms = ttm_for(match)
-                        mouse.pull(held_side)
+                        if planned:
+                            mouse.prepare(held_side, held_action)
+                            if pulls(held_action):
+                                settle_until = max(now, mouse.pull_ready_at()) + (cfg["pull_ms"] + cfg["pull_settle_ms"]) / 1000
+                                inners.clear(); rejected.clear(); history.clear(); last_ratio = None
+                        else:
+                            mouse.pull(held_side)
+                    elif (planned and plan(held_side) != held_action
+                          and (can_mode or plan(held_side) == "bomb")   # 水果模式只會改成炸彈，不會改回來
+                          and (ttm_ms is None or ttm_ms > cfg["can_replan_ms"])):
+                        # 罐子在光圈出現後才移動、引拍後才看到炸彈：改打法；快出手了來不及重新引拍就不改
+                        why = f"罐子移到 {can_lane}" if can_mode else "看到炸彈"
+                        print(f"\n[改打法] {why}：{held_action} → {plan(held_side)}")
+                        held_action = plan(held_side)
+                        match = match_for(held_side, cfg, held_action)
+                        ttm_ms = ttm_for(match)
+                        mouse.prepare(held_side, held_action)
+                        if pulls(held_action):
+                            settle_until = max(now, mouse.pull_ready_at()) + (cfg["pull_ms"] + cfg["pull_settle_ms"]) / 1000
+                            inners.clear(); rejected.clear(); history.clear(); last_ratio = None
                 if should_fire(match):
                     mouse.swing()
                     log_swing("揮拍")
+                    phase, phase_t = "cooldown", now
+                    history.clear()
+                elif (cfg["yellow_fire"] and ring is None and held_center is not None
+                      and yellow_ring_near(hsv, held_center, held_r * 1.2, cfg) >= 0.6):
+                    # 光圈變黃色 = 已到擊球點，還沒揮就立刻補揮（例如很晚才認出炸彈、重新引拍後量不到內圈）
+                    mouse.swing()
+                    print(f"\n[黃色補揮] {held_side} {held_action}  光圈變黃色（擊球點）還沒出手，立刻補揮"
+                          f"（最後比值 {'-' if last_ratio is None else f'{last_ratio:.2f}'}，目標 {match:.2f}）")
+                    step = max(1, len(shot_rs) // 12)
+                    print("  外圈變化：" + " → ".join(f"{r:.0f}" for r in shot_rs[::step]) + "px")
+                    save_shot("黃色補揮", frame.copy())
                     phase, phase_t = "cooldown", now
                     history.clear()
                 elif ratio is None and ttm_ms is not None and ttm_ms <= lead_ms + frame_dt_ms / 2:
@@ -1025,11 +1489,25 @@ def run(cfg, debug):
                     ratio_txt = "-" if last_ratio is None else f"{last_ratio:.2f}"
                     print(f"\n[取消] {held_side} 光圈消失，沒有出手"
                           f"（看到 {shot_frames} 張、量到內圈 {shot_inner_hits} 次、最後比值 {ratio_txt}）")
+                    step = max(1, len(shot_rs) // 10)
+                    print("  外圈變化：" + " → ".join(f"{r:.0f}" for r in shot_rs[::step]) + "px")
                     save_shot("取消", last_vis)
                     phase = "idle"
             elif (phase == "cooldown" and now - phase_t > cfg["cooldown_ms"] / 1000
-                  and now - last_seen > cfg["rearm_ms"] / 1000):
+                  and (now - last_seen > cfg["rearm_ms"] / 1000
+                       # 水果模式下一球的光圈常常一回球就出現，光圈不會中斷：比剛才出手時大很多 = 新的一球
+                       or (fruit_mode and ring is not None and held_r and ring["r"] > held_r * 1.5))):
+                if now - last_seen <= cfg["rearm_ms"] / 1000:
+                    print(f"\n[下一球] 光圈 {ring['r']:.0f}px（剛才出手時 {held_r:.0f}px）")
+                    inners.clear()
+                    rejected.clear()
+                    history.clear()
                 phase = "idle"
+
+            if phase == "cooldown" and prev_phase != "cooldown":
+                last_fire = now
+                bomb_track.clear()
+            prev_phase = phase
 
             if debug:
                 cv2.imshow("debug (move this window away from the game)", vis)
@@ -1072,7 +1550,7 @@ def main():
         apply_profile(cfg, args.profile)
     elif PROFILES_PATH.exists():
         print(f"[設定組] 可用：{'、'.join(load_profiles())}（用 --profile 名稱 選擇）")
-    if args.calibrate or not cfg["region"]:
+    if args.calibrate or not cfg["region"] or (cfg["swing_mode"] == "can" and not cfg["can_area"]):
         calibrate(cfg)
     if args.drive:
         cfg["swing_mode"] = "drive"
